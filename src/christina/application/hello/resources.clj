@@ -1,4 +1,4 @@
-(ns christina.application.resources
+(ns christina.application.hello.resources
   (:require
     [christina.library.resources :as r]))
 

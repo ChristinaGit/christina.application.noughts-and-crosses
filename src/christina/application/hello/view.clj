@@ -1,6 +1,6 @@
 (ns christina.application.hello.view
   (:require
-    [christina.application.resources :refer :all]
+    [christina.application.hello.resources :refer :all]
     [christina.library.resources :as r]))
 
 (defn show-empty-state [on-input-user-name]

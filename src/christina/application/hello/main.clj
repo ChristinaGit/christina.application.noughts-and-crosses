@@ -1,4 +1,4 @@
-(ns christina.application.main
+(ns christina.application.hello.main
   (:require
     [christina.application.hello.model :as m]
     [christina.application.hello.controller :as c]))

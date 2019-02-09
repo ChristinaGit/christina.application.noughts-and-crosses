@@ -40,4 +40,4 @@
 
 (defn resolve-format
   [container tag & args]
-  (apply (partial format (resolve container tag)) args))
+  (apply format (resolve container tag) args))
