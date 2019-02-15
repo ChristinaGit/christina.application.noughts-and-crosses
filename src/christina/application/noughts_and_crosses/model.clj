@@ -18,8 +18,8 @@
 
 (defn create []
   {:post [contract/not-nil?]}
-  {::state ::state|none
-   ::game  nil})
+  {::state     ::state|none
+   ::game      nil})
 
 (defn state [this]
   {:pre  [(contract/not-nil? this)]
@@ -49,28 +49,6 @@
           (in-state? this ::state|game-in-progress)]
    :post [contract/not-nil?]}
   (user/name (player/user (game/active-player (game this)))))
-
-(defn- sign->char [sign]
-  {:post [contract/not-nil?]}
-  (case sign
-    ::sign/nought \O
-    ::sign/cross \X
-    \-))
-
-(defn field-map [this]
-  [(contract/not-nil? this)
-   (in-state? this ::state|game-in-progress)
-   :post [contract/not-nil?]]
-  (let [game (game this)
-        field (game/field game)
-        [size-x size-y] (field/coordinate-ranges field)]
-    (apply str (map
-                 (fn [y]
-                   (apply str (conj (map
-                                      (fn [x]
-                                        (sign->char (field/sign-by-coordinates field [x y])))
-                                      (apply range size-x)) \newline)))
-                 (apply range size-y)))))
 
 (defn initialize [this]
   {:pre  [(contract/not-nil? this)
