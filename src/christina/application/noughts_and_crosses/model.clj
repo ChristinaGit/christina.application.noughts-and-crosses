@@ -4,6 +4,7 @@
             [christina.application.noughts-and-crosses.domain.sign :as sign]
             [christina.application.noughts-and-crosses.domain.player :as player]
             [christina.application.noughts-and-crosses.domain.user :as user]
+            [christina.application.noughts-and-crosses.domain.rules :as rules]
             [christina.application.noughts-and-crosses.domain.field :as field]
             [christina.application.noughts-and-crosses.domain.game :as game])
   (:import (clojure.lang Keyword)))
@@ -18,8 +19,8 @@
 
 (defn create []
   {:post [contract/not-nil?]}
-  {::state     ::state|none
-   ::game      nil})
+  {::state ::state|none
+   ::game  nil})
 
 (defn state [this]
   {:pre  [(contract/not-nil? this)]
@@ -57,6 +58,18 @@
   (assoc this
     ::state ::state|initialized))
 
+(defn- turn-rule [field sign coordinates] true)
+
+(defn- line-from [signs coordinates size]
+  (map #(get signs [(+ (first coordinates) %) (second coordinates)]) (range 0 size))
+  (map #(get signs [(first coordinates) (+ (second coordinates) %)]) (range 0 size))
+  (map #(get signs [(+ (first coordinates) %) (+ (second coordinates) %)]) (range 0 size)))
+
+(defn- terminal-rule [field]
+  (let [signs (field/signs field)
+        coordinates (keys signs)]
+    (some #(not-any? nil? %) (map #(line-from signs % 3) coordinates))))
+
 (defn start-game [this user-name-1 user-name-2]
   {:pre  [(contract/not-nil? this user-name-1 user-name-2)
           (in-state? this ::state|initialized)]
@@ -65,6 +78,7 @@
     ::state ::state|game-in-progress
     ::game (game/create
              (field/create [[0 3] [0 3]])
+             (rules/create turn-rule terminal-rule)
              [(player/create (user/create user-name-1) ::sign/cross)
               (player/create (user/create user-name-2) ::sign/nought)])))
 
