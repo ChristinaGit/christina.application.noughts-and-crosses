@@ -1,4 +1,4 @@
-# christina.application.shift-calculator
+# christina.application.noughts-and-crosses
 
 A Clojure library designed to ... well, that part is up to you.
 
