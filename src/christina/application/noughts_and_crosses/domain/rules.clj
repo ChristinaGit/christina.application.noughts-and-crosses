@@ -23,12 +23,7 @@
   (true? ((turn this) field sign coordinates)))
 
 (derive ::terminal|draw ::terminal)
-(derive ::terminal|success ::terminal)
+(derive ::terminal|winner ::terminal)
 
 (defn is-terminal-state? [^Keyword state]
   (isa? state ::terminal))
-
-(defn terminal-state [this field]
-  {:pre  [(contract/not-nil? this field)]
-   :post [is-terminal-state?]}
-  (true? ((terminal this) field)))

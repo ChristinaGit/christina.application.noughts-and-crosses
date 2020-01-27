@@ -2,12 +2,12 @@
   (:refer-clojure :exclude [name])
   (:require [christina.library.contract :as contract]))
 
-(defn create [name]
-  {:pre  [(contract/not-nil? name)]
+(defn create [id]
+  {:pre  [(contract/not-nil? id)]
    :post [contract/not-nil?]}
-  {::name name})
+  {::id id})
 
-(defn name [this]
+(defn id [this]
   {:pre  [(contract/not-nil? this)]
    :post [contract/not-nil?]}
-  (::name this))
+  (::id this))

@@ -3,19 +3,25 @@
     [christina.library.contract :as contract]
     [christina.application.noughts-and-crosses.domain.rules :as rules]
     [christina.application.noughts-and-crosses.domain.field :as field]
-    [christina.application.noughts-and-crosses.domain.player :as player])
+    [christina.application.noughts-and-crosses.domain.player :as player]
+    [christina.application.noughts-and-crosses.domain.user :as user]
+    [clojure.tools.logging :as log])
   (:import (clojure.lang Keyword)))
 
-(derive ::state|free ::state)
-(derive ::state|success ::state)
-(derive ::state|draw ::state)
+(derive ::state|in-progress ::state)
+(derive ::state|done ::state)
+(derive ::state|done|winner ::state|done)
+(derive ::state|done|draw ::state|done)
 
 (defn is-state? [^Keyword state]
   (isa? state ::state))
 
 (defn can-play-together? [players]
-  {:pre [(contract/not-nil? players)]}
-  (distinct? (map player/sign players)))
+  {:pre  [(contract/not-nil? players)]
+   :post [contract/not-nil?]}
+  (and
+    (apply distinct? (map player/sign players))
+    (apply distinct? (map #(user/id (player/user %)) players))))
 
 (defn create [field rules players]
   {:pre  [(contract/not-nil? field rules players (first players) (second players))
@@ -25,7 +31,7 @@
    ::rules               rules
    ::players             players
    ::active-player-index 0
-   ::state               ::state|free})
+   ::state               ::state|in-progress})
 
 (defn field [this]
   {:pre  [(contract/not-nil? this)]
@@ -61,14 +67,14 @@
   {:pre  [(contract/not-nil? this coordinates)
           (field/empty-by-coordinates? (field this) coordinates)]
    :post [contract/not-nil?]}
-  (assoc this
-    ::field (field/place-sign
-              (field this)
-              (player/sign (active-player this))
-              coordinates)
-    ::active-player-index (mod (inc (active-player-index this)) (count (players this)))
-    ::state (case (rules/terminal-state (rules this) (field this))
-              ::rules/terminal|draw ::state|draw
-              ::rules/terminal|success ::state|success
-              ::state|free)))
-
+  (let [new-field (field/place-sign
+                    (field this)
+                    (player/sign (active-player this))
+                    coordinates)]
+    (assoc this
+      ::field new-field
+      ::active-player-index (mod (inc (active-player-index this)) (count (players this)))
+      ::state (case (field/terminal-state new-field (rules this))
+                ::rules/terminal|draw ::state|done|draw
+                ::rules/terminal|winner ::state|done|winner
+                ::state|in-progress))))

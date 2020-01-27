@@ -2,8 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="baa5360c-26dc-4b82-9840-032ecfd369fd" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project.clj" beforeDir="false" afterPath="$PROJECT_DIR$/project.clj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/domain/field.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/domain/field.clj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/domain/game.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/domain/game.clj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/domain/rules.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/domain/rules.clj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/domain/user.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/domain/user.clj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/model.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/model.clj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/resources.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/resources.clj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/view/console.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/christina/application/noughts_and_crosses/view/console.clj" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -102,7 +109,9 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1573761270000</updated>
-      <workItem from="1573761272027" duration="2293000" />
+      <workItem from="1573761272027" duration="3631000" />
+      <workItem from="1579682783721" duration="3887000" />
+      <workItem from="1580112674737" duration="6261000" />
     </task>
     <servers />
   </component>
@@ -114,7 +123,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>

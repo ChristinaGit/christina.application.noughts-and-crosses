@@ -2,7 +2,8 @@
   (:require
     [christina.library.contract :as contract]
     [christina.application.noughts-and-crosses.domain.sign :as sign]
-    [clojure.tools.logging :as log])
+    [clojure.tools.logging :as log]
+    [christina.application.noughts-and-crosses.domain.rules :as rules])
   (:import (clojure.lang Keyword)))
 
 (defn create
@@ -50,3 +51,8 @@
           (valid-coordinates? this coordinates)]
    :post [contract/not-nil?]}
   (assoc-in this [::signs coordinates] sign))
+
+(defn terminal-state [this rules]
+  {:pre  [(contract/not-nil? this rules)]
+   :post [rules/is-terminal-state?]}
+  ((rules/terminal rules) this))
