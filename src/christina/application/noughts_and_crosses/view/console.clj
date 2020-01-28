@@ -18,6 +18,10 @@
   (let [coordinates (console/read-n-ints 2)]
     (handler #(model/perform-turn % coordinates))))
 
+(defn- request-rules []
+  (println (res/resolve-string* ::r/request-rules))
+  (console/read-n-ints 2))
+
 (defn- request-player-id [player-id]
   {:pre [(contract/not-nil? player-id)]}
   (println (res/resolve-format* ::r/request-player-id-format player-id))
@@ -47,14 +51,16 @@
 (defn- on-state->initialized [handler]
   {:pre [(contract/not-nil? handler)]}
   (println (res/resolve-string* ::r/start-welcome))
-  (let [user-name-1 (request-player-id 1)
+  (let [[target-length field-size] (request-rules)
+        user-name-1 (request-player-id 1)
         user-name-2 (request-player-id 2)]
-    (handler #(model/start-game % user-name-1 user-name-2))))
+    (handler #(model/start-game % target-length field-size user-name-1 user-name-2))))
 
 (defn- on-state->game-in-progress [new-model handler]
   {:pre [(contract/not-nil? new-model handler)]}
   (let [players-names (model/players-ids new-model)]
     (println (res/resolve-format* ::r/game-started-format (first players-names) (second players-names))))
+  (println (field-map new-model))
   (request-turn new-model handler))
 
 (defn- on-state->game-hold [handler]

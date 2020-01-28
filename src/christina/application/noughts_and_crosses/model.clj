@@ -95,29 +95,30 @@
 (defn- signs-lines-sums [signs coordinates filed-size]
   (map signs-line-sum (signs-lines signs coordinates filed-size)))
 
-(defn- contain-terminal-line? [signs coordinates field-size]
-  (some #(= % field-size) (signs-lines-sums signs coordinates field-size)))
+(defn- contain-terminal-line? [signs coordinates target-size]
+  (some #(= % target-size) (signs-lines-sums signs coordinates target-size)))
 
-(defn- terminal-rule [field]
+(defn- terminal-rule [target-length field]
   (let [signs (field/signs field)
         coordinates (keys signs)
         field-width (field/width field)
         field-height (field/height field)
         field-size (max field-width field-height)]
     (cond
-      (some true? (map #(contain-terminal-line? signs % field-size) coordinates)) ::rules/terminal-state|winner
+      (some true? (map #(contain-terminal-line? signs % target-length) coordinates)) ::rules/terminal-state|winner
       (= (count coordinates) (* field-width field-height)) ::rules/terminal-state|draw
       :else ::rules/terminal-state|none)))
 
-(defn start-game [this user-id-1 user-id-2]
-  {:pre  [(contract/not-nil? this user-id-1 user-id-2)
+(defn start-game [this target-length field-size user-id-1 user-id-2]
+  {:pre  [(contract/not-nil? this target-length user-id-1 user-id-2)
+          (>= target-length 2)
           (in-state? this ::state|initialized)]
    :post [contract/not-nil?]}
   (assoc this
     ::.state ::state|game|in-progress
     ::.game (game/create
-              (field/create [[0 3] [0 3]])
-              (rules/create turn-rule terminal-rule)
+              (field/create [[0 field-size] [0 field-size]])
+              (rules/create turn-rule (partial terminal-rule target-length))
               [(player/create (user/create user-id-1) ::sign/cross)
                (player/create (user/create user-id-2) ::sign/nought)])))
 

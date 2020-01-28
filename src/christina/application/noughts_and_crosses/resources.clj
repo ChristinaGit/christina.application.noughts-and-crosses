@@ -5,6 +5,7 @@
 
 (def ru (-> neutral
             (container/add-string ::start-welcome "Добро божаловать!")
+            (container/add-string ::request-rules "Введите длину победной цепочки и размер поля:")
             (container/add-format ::request-player-id-format "Введите имя %s игрока:")
             (container/add-format ::request-player-turn-format "Ваш ход, %s!")
             (container/add-format ::game-started-format "Игра начинается! Играет %s против %s!")
@@ -14,6 +15,7 @@
 
 (def en (-> neutral
             (container/add-string ::start-welcome "Welcome!")
+            (container/add-string ::request-rules "Input length of winning line and field size:")
             (container/add-format ::request-player-id-format "Input %s player name:")
             (container/add-format ::request-player-turn-format "Your turn, %s!")
             (container/add-format ::game-started-format "Game begins! %s vs. %s!")
