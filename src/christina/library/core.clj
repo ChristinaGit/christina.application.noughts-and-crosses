@@ -13,3 +13,5 @@
   ([string default]
    (try (int (Double/parseDouble string))
         (catch Throwable _ default))))
+
+(def not-nil? (complement nil?))

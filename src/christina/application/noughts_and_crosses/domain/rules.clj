@@ -4,26 +4,32 @@
   (:import (clojure.lang Keyword)))
 
 (defn create [turn terminal]
-  {::turn     turn
-   ::terminal terminal})
+  {::.turn     turn
+   ::.terminal terminal})
 
 (defn turn [this]
   {:pre  [(contract/not-nil? this)]
    :post [contract/not-nil?]}
-  (::turn this))
+  (::.turn this))
 
 (defn terminal [this]
   {:pre  [(contract/not-nil? this)]
    :post [contract/not-nil?]}
-  (::terminal this))
+  (::.terminal this))
 
-(defn valid-turn? [this field ^Keyword sign coordinates]
-  {:pre [(contract/not-nil? this field sign)
-         (sign/is? sign)]}
-  (true? ((turn this) field sign coordinates)))
-
-(derive ::terminal|draw ::terminal)
-(derive ::terminal|winner ::terminal)
+(derive ::terminal-state|draw ::terminal-state)
+(derive ::terminal-state|winner ::terminal-state)
+(derive ::terminal-state|none ::terminal-state)
 
 (defn is-terminal-state? [^Keyword state]
-  (isa? state ::terminal))
+  (isa? state ::terminal-state))
+
+(defn terminal-state [this field]
+  {:pre  [(contract/not-nil? this field)]
+   :post [is-terminal-state?]}
+  ((terminal this) field))
+
+(defn valid-turn? [this field coordinates ^Keyword sign]
+  {:pre [(contract/not-nil? this field sign)
+         (sign/is? sign)]}
+  (true? ((turn this) field coordinates sign)))

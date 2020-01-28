@@ -5,9 +5,9 @@
 (defn create [id]
   {:pre  [(contract/not-nil? id)]
    :post [contract/not-nil?]}
-  {::id id})
+  {::.id id})
 
 (defn id [this]
   {:pre  [(contract/not-nil? this)]
    :post [contract/not-nil?]}
-  (::id this))
+  (::.id this))

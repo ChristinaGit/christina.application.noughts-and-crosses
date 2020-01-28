@@ -7,16 +7,16 @@
   {:pre  [(contract/not-nil? user sign)
           (sign/is? sign)]
    :post [contract/not-nil?]}
-  {::user user
-   ::sign sign})
+  {::.user user
+   ::.sign sign})
 
 (defn user [this]
   {:pre  [(contract/not-nil? user)]
    :post [contract/not-nil?]}
-  (::user this))
+  (::.user this))
 
 (defn sign [this]
   {:pre  [(contract/not-nil? user)]
    :post [contract/not-nil?
           sign/is?]}
-  (::sign this))
+  (::.sign this))

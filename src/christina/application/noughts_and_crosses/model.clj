@@ -8,13 +8,20 @@
             [christina.application.noughts-and-crosses.domain.rules :as rules]
             [christina.application.noughts-and-crosses.domain.field :as field]
             [christina.application.noughts-and-crosses.domain.game :as game])
-  (:import (clojure.lang Keyword)
-           (com.sun.xml.internal.bind.v2 TODO)))
+  (:import (clojure.lang Keyword))
+  (:use [christina.library.core]))
 
 (derive ::state|none ::state)
 (derive ::state|initialized ::state)
-(derive ::state|game-in-progress ::state)
-(derive ::state|game-ends ::state)
+
+(derive ::state|game ::state)
+(derive ::state|game|hold ::state|game)
+(derive ::state|game|in-progress ::state|game)
+
+(derive ::state|game|ends ::state|game)
+(derive ::state|game|ends|winner ::state|game|ends)
+(derive ::state|game|ends|draw ::state|game|ends)
+
 (derive ::state|closed ::state)
 
 (defn is-state? [^Keyword state]
@@ -22,41 +29,41 @@
 
 (defn create []
   {:post [contract/not-nil?]}
-  {::state ::state|none
-   ::game  nil})
+  {::.state ::state|none
+   ::.game  nil})
 
 (defn state [this]
   {:pre  [(contract/not-nil? this)]
    :post [contract/not-nil?
           is-state?]}
-  (::state this))
+  (::.state this))
 
 (defn in-state? [this expected]
   {:pre [(contract/not-nil? this expected)
          (is-state? expected)]}
-  (= (state this) expected))
+  (isa? (state this) expected))
 
 (defn game [this]
   {:pre  [(contract/not-nil? this)
-          (in-state? this ::state|game-in-progress)]
+          (in-state? this ::state|game)]
    :post [contract/not-nil?]}
-  (::game this))
+  (::.game this))
 
 (defn players-ids [this]
   {:pre  [(contract/not-nil? this)
-          (in-state? this ::state|game-in-progress)]
+          (in-state? this ::state|game)]
    :post [contract/not-nil?]}
   (map (comp user/id player/user) (game/players (game this))))
 
 (defn active-player-id [this]
   {:pre  [(contract/not-nil? this)
-          (in-state? this ::state|game-in-progress)]
+          (in-state? this ::state|game)]
    :post [contract/not-nil?]}
   (user/id (player/user (game/active-player (game this)))))
 
 (defn active-player-sign [this]
   {:pre  [(contract/not-nil? this)
-          (in-state? this ::state|game-in-progress)]
+          (in-state? this ::state|game)]
    :post [contract/not-nil? sign/is?]}
   (player/sign (game/active-player (game this))))
 
@@ -65,9 +72,10 @@
           (in-state? this ::state|none)]
    :post [contract/not-nil?]}
   (assoc this
-    ::state ::state|initialized))
+    ::.state ::state|initialized))
 
-(defn- turn-rule [field sign coordinates] true)
+(defn- turn-rule [field coordinates ^Keyword sign]
+  (field/empty-by-coordinates? field coordinates))
 
 (defn- sign->number [sign]
   {:pre [(sign/is? sign)]}
@@ -78,51 +86,64 @@
 (defn- signs-line-sum [signs-line]
   (math/abs (apply + (map sign->number signs-line))))
 
-(defn- signs-lines [signs coordinates size]
+(defn- signs-lines [signs coordinates field-size]
   (list
-    (filter #(not (nil? %)) (map #(get signs [(+ (first coordinates) %) (second coordinates)]) (range 0 size)))
-    (filter #(not (nil? %)) (map #(get signs [(first coordinates) (+ (second coordinates) %)]) (range 0 size)))
-    (filter #(not (nil? %)) (map #(get signs [(+ (first coordinates) %) (+ (second coordinates) %)]) (range 0 size)))))
+    (filter not-nil? (map #(get signs [(+ (first coordinates) %) (second coordinates)]) (range 0 field-size)))
+    (filter not-nil? (map #(get signs [(first coordinates) (+ (second coordinates) %)]) (range 0 field-size)))
+    (filter not-nil? (map #(get signs [(+ (first coordinates) %) (+ (second coordinates) %)]) (range 0 field-size)))))
 
-(defn- signs-lines-sums [signs coordinates size]
-  (map signs-line-sum (signs-lines signs coordinates size)))
+(defn- signs-lines-sums [signs coordinates filed-size]
+  (map signs-line-sum (signs-lines signs coordinates filed-size)))
 
-(defn- contain-terminal-line? [signs coordinates size]
-  (some #(= % size) (signs-lines-sums signs coordinates size)))
+(defn- contain-terminal-line? [signs coordinates field-size]
+  (some #(= % field-size) (signs-lines-sums signs coordinates field-size)))
 
 (defn- terminal-rule [field]
   (let [signs (field/signs field)
-        coordinates (keys signs)]
+        coordinates (keys signs)
+        field-width (field/width field)
+        field-height (field/height field)
+        field-size (max field-width field-height)]
     (cond
-      (some #(= % true) (map #(contain-terminal-line? signs % 3) coordinates)) ::rules/terminal|winner
-      (= (count coordinates) (* 3 3)) ::rules/terminal|draw
-      nil)))
+      (some true? (map #(contain-terminal-line? signs % field-size) coordinates)) ::rules/terminal-state|winner
+      (= (count coordinates) (* field-width field-height)) ::rules/terminal-state|draw
+      :else ::rules/terminal-state|none)))
 
 (defn start-game [this user-id-1 user-id-2]
   {:pre  [(contract/not-nil? this user-id-1 user-id-2)
           (in-state? this ::state|initialized)]
    :post [contract/not-nil?]}
   (assoc this
-    ::state ::state|game-in-progress
-    ::game (game/create
-             (field/create [[0 3] [0 3]])
-             (rules/create turn-rule terminal-rule)
-             [(player/create (user/create user-id-1) ::sign/cross)
-              (player/create (user/create user-id-2) ::sign/nought)])))
+    ::.state ::state|game|in-progress
+    ::.game (game/create
+              (field/create [[0 3] [0 3]])
+              (rules/create turn-rule terminal-rule)
+              [(player/create (user/create user-id-1) ::sign/cross)
+               (player/create (user/create user-id-2) ::sign/nought)])))
 
 (defn perform-turn [this coordinates]
   {:pre  [(contract/not-nil? this coordinates)
-          (in-state? this ::state|game-in-progress)]
+          (in-state? this ::state|game|in-progress)]
    :post [contract/not-nil?]}
   (let [new-game (game/perform-turn (game this) coordinates)]
     (assoc this
-      ::state (if (isa? (game/state new-game) ::game/state|done)
-                ::state|game-ends
-                (state this))
-      ::game new-game)))
+      ::.state (case (game/state new-game)
+                 ::game/state|hold ::state|game|hold
+                 ::game/state|done|winner ::state|game|ends|winner
+                 ::game/state|done|draw ::state|game|ends|draw
+                 (state this))
+      ::.game new-game)))
+
+(defn rollback [this]
+  {:pre  [(contract/not-nil? this)
+          (in-state? this ::state|game|hold)]
+   :post [contract/not-nil?]}
+  (assoc this
+    ::.state ::state|game|in-progress
+    ::.game (game/rollback (game this))))
 
 (defn close [this]
   {:pre  [(contract/not-nil? this)]
    :post [contract/not-nil?]}
   (assoc this
-    ::state ::state|closed))
+    ::.state ::state|closed))

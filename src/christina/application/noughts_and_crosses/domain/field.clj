@@ -2,8 +2,7 @@
   (:require
     [christina.library.contract :as contract]
     [christina.application.noughts-and-crosses.domain.sign :as sign]
-    [clojure.tools.logging :as log]
-    [christina.application.noughts-and-crosses.domain.rules :as rules])
+    [clojure.math.numeric-tower :as math])
   (:import (clojure.lang Keyword)))
 
 (defn create
@@ -13,18 +12,30 @@
   ([signs coordinate-ranges]
    {:pre  [(contract/not-nil? signs coordinate-ranges)]
     :post [contract/not-nil?]}
-   {::signs             signs
-    ::coordinate-ranges coordinate-ranges}))
+   {::.signs             signs
+    ::.coordinate-ranges coordinate-ranges}))
 
 (defn signs [this]
   {:pre  [(contract/not-nil? this)]
    :post [contract/not-nil?]}
-  (::signs this))
+  (::.signs this))
 
 (defn coordinate-ranges [this]
   {:pre  [(contract/not-nil? this)]
    :post [contract/not-nil?]}
-  (::coordinate-ranges this))
+  (::.coordinate-ranges this))
+
+(defn width [this]
+  {:pre  [(contract/not-nil? this)]
+   :post [contract/not-nil?]}
+  (let [range (first (coordinate-ranges this))]
+    (math/abs (- (first range) (second range)))))
+
+(defn height [this]
+  {:pre  [(contract/not-nil? this)]
+   :post [contract/not-nil?]}
+  (let [range (second (coordinate-ranges this))]
+    (math/abs (- (first range) (second range)))))
 
 (defn valid-coordinates? [this coordinates]
   {:pre [(contract/not-nil? this coordinates)]}
@@ -45,14 +56,9 @@
          (valid-coordinates? this coordinates)]}
   (nil? (sign-by-coordinates this coordinates)))
 
-(defn place-sign [this ^Keyword sign coordinates]
+(defn place-sign [this coordinates ^Keyword sign]
   {:pre  [(contract/not-nil? this sign coordinates)
           (sign/is? sign)
           (valid-coordinates? this coordinates)]
    :post [contract/not-nil?]}
-  (assoc-in this [::signs coordinates] sign))
-
-(defn terminal-state [this rules]
-  {:pre  [(contract/not-nil? this rules)]
-   :post [rules/is-terminal-state?]}
-  ((rules/terminal rules) this))
+  (assoc-in this [::.signs coordinates] sign))
